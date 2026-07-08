@@ -2,6 +2,10 @@
     include('../inc/functions.php');
 
     $emp_no   = $_GET['emp_no'] ?? '';
+    $page_title = 'Changer de département';
+    $current_page = 'departments';
+    include('../inc/header.php');
+    
     $employee = get_one_employee($emp_no);
     $current  = get_current_department($emp_no);
 
@@ -29,44 +33,52 @@
     // b. La liste déroulante exclut le département actuel
     $departments = get_departments_except($current ? $current['dept_no'] : '');
 ?>
-<html>
-    <head>
-        <title>Changer de département</title>
-    </head>
-    <body>
-    <p><a href="fiche.php?emp_no=<?= urlencode($emp_no) ?>">&larr; Retour à la fiche</a></p>
 
-    <?php if (!$employee) { ?>
-        <h1>Employé introuvable</h1>
-    <?php } else { ?>
-        <h1>Changer le département de <?= $employee['first_name'] ?> <?= $employee['last_name'] ?></h1>
+<?php if (!$employee) { ?>
+    <h1>Employé introuvable</h1>
+<?php } else { ?>
+    <h1>Changer le département de <?= $employee['first_name'] ?> <?= $employee['last_name'] ?></h1>
 
-        <?php if ($success) { ?>
-            <p style="color:green;">Changement effectué.</p>
-        <?php } ?>
-        <?php if ($error !== '') { ?>
-            <p style="color:red;"><?= htmlspecialchars($error) ?></p>
-        <?php } ?>
+    <?php if ($success) { ?>
+        <div class="alert alert-success">Changement effectué.</div>
+    <?php } ?>
+    <?php if ($error !== '') { ?>
+        <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+    <?php } ?>
 
-        <!-- b. Département actuel affiché en haut, avec sa date de début -->
+    <!-- b. Département actuel affiché en haut, avec sa date de début -->
+    <div class="card mb">
         <p>
-            <strong>Département actuel :</strong>
-            <?= $current ? $current['dept_name'] . ' (depuis le ' . $current['from_date'] . ')' : 'aucun' ?>
+            <strong>Département actuel :</strong><br>
+            <span class="text-muted">
+                <?= $current ? $current['dept_name'] . ' (depuis le ' . $current['from_date'] . ')' : 'aucun' ?>
+            </span>
         </p>
+    </div>
 
+    <div class="card">
         <form method="post" action="change_dept.php?emp_no=<?= urlencode($emp_no) ?>">
-            <p>
-                Nouveau département :
-                <select name="dept_no">
+            <div class="form-group">
+                <label for="dept_no">Nouveau département</label>
+                <select class="form-control" id="dept_no" name="dept_no">
                     <option value="">— Choisir —</option>
                     <?php foreach ($departments as $d) { ?>
                         <option value="<?= $d['dept_no'] ?>"><?= $d['dept_name'] ?></option>
                     <?php } ?>
                 </select>
-            </p>
-            <p>Date de début : <input type="date" name="from_date"></p>
-            <p><input type="submit" value="Changer de département"></p>
+            </div>
+            
+            <div class="form-group">
+                <label for="from_date">Date de début</label>
+                <input class="form-control" type="date" id="from_date" name="from_date">
+            </div>
+            
+            <button type="submit" class="btn">Changer de département</button>
         </form>
-    <?php } ?>
-    </body>
+    </div>
+<?php } ?>
+
+        </div>
+    </div>
+</body>
 </html>
